@@ -8,25 +8,59 @@ public class SimpleMenu implements Menu {
 
     @Override
     public boolean add(String parentName, String childName, ActionDelegate actionDelegate) {
-   /*  добавьте реализацию*/
-        return  false;
+        Optional<ItemInfo> parent = findItem(parentName);
+        if (parent.isPresent()) {
+            parent.get().menuItem.getChildren().add(new SimpleMenuItem(
+                    childName, actionDelegate
+            ));
+            return true;
+        }
+        return false;
     }
 
     @Override
     public Optional<MenuItemInfo> select(String itemName) {
-        /*  добавьте реализацию*/
-        return null;
+        Optional<MenuItemInfo> result = Optional.empty();
+        Optional<ItemInfo> selected = findItem(itemName);
+        if (selected.isPresent()) {
+            result = Optional.of(new MenuItemInfo(selected.get().menuItem,
+                    selected.get().number));
+        }
+        return result;
     }
 
     @Override
     public Iterator<MenuItemInfo> iterator() {
-        /*  добавьте реализацию*/
-        return null;
+        return new Iterator<MenuItemInfo>() {
+            final DFSIterator dfsIterator = new DFSIterator();
+
+            @Override
+            public boolean hasNext() {
+                return dfsIterator.hasNext();
+            }
+
+            @Override
+            public MenuItemInfo next() {
+                if (!dfsIterator.hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                ItemInfo itemInfo = dfsIterator.next();
+                return new MenuItemInfo(itemInfo.menuItem, itemInfo.number);
+            }
+        };
     }
 
     private Optional<ItemInfo> findItem(String name) {
-        /*  добавьте реализацию*/
-        return null;
+        Optional<ItemInfo> result = Optional.empty();
+        DFSIterator dfsIterator = new DFSIterator();
+        while (dfsIterator.hasNext()) {
+            ItemInfo current = dfsIterator.next();
+            if (name.equals(current.menuItem.getName())) {
+                result = Optional.of(current);
+                break;
+            }
+        }
+        return result;
     }
 
     private static class SimpleMenuItem implements MenuItem {
@@ -96,7 +130,6 @@ public class SimpleMenu implements Menu {
 
         MenuItem menuItem;
         String number;
-
         public ItemInfo(MenuItem menuItem, String number) {
             this.menuItem = menuItem;
             this.number = number;
