@@ -8,6 +8,10 @@ public class SimpleMenu implements Menu {
 
     @Override
     public boolean add(String parentName, String childName, ActionDelegate actionDelegate) {
+        if ("ROOT".equals(parentName)) {
+            rootElements.add(new SimpleMenuItem(childName, actionDelegate));
+            return true;
+        }
         Optional<ItemInfo> parent = findItem(parentName);
         if (parent.isPresent()) {
             parent.get().menuItem.getChildren().add(new SimpleMenuItem(
@@ -32,7 +36,7 @@ public class SimpleMenu implements Menu {
     @Override
     public Iterator<MenuItemInfo> iterator() {
         return new Iterator<MenuItemInfo>() {
-            final DFSIterator dfsIterator = new DFSIterator();
+            private final DFSIterator dfsIterator = new DFSIterator();
 
             @Override
             public boolean hasNext() {
@@ -92,9 +96,9 @@ public class SimpleMenu implements Menu {
 
     private class DFSIterator implements Iterator<ItemInfo> {
 
-        Deque<MenuItem> stack = new LinkedList<>();
+        private Deque<MenuItem> stack = new LinkedList<>();
 
-        Deque<String> numbers = new LinkedList<>();
+        private Deque<String> numbers = new LinkedList<>();
 
         DFSIterator() {
             int number = 1;
@@ -128,8 +132,9 @@ public class SimpleMenu implements Menu {
 
     private class ItemInfo {
 
-        MenuItem menuItem;
-        String number;
+        private MenuItem menuItem;
+        private String number;
+
         public ItemInfo(MenuItem menuItem, String number) {
             this.menuItem = menuItem;
             this.number = number;
